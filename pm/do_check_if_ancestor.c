@@ -20,7 +20,7 @@ int do_check_if_ancestor_recursion(pid_t pid1, pid_t pid2) {
     pid2_parent_idx = mproc[pid2_idx].mp_parent;
     if ( (pid2_parent = mproc[pid2_parent_idx].mp_pid) == 0) return 0; // we have reached root
     if (pid2_parent == pid1) return 1; // pid1 is an ancestor of pid2
-    return check_if_ancestor(pid1, pid2_parent);
+    return do_check_if_ancestor_recursion(pid1, pid2_parent);
 }
 
 int do_check_if_ancestor(message *m) {
