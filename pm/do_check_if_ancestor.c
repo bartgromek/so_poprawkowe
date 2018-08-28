@@ -23,8 +23,8 @@ int do_check_if_ancestor_recursion(pid_t pid1, pid_t pid2) {
     return check_if_ancestor(pid1, pid2_parent);
 }
 
-int do_check_if_ancestor(message *m_in) {
-    pid_t pid1 = m_in.m1_i1, pid2 = m_in.m1_i2;
+int do_check_if_ancestor(message *m) {
+    pid_t pid1 = m->m1_i1, pid2 = m->m1_i2;
     return do_check_if_ancestor_recursion(pid1, pid2);
 }
 
