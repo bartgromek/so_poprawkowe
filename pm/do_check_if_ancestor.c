@@ -13,7 +13,7 @@ int find_index(pid_t pid) {
     return -1;
 }
 
-uint8_t do_check_if_ancestor_recursion(pid_t pid1, pid_t pid2) {
+int do_check_if_ancestor_recursion(pid_t pid1, pid_t pid2) {
     int pid2_idx, pid2_parent_idx;
     pid_t pid2_parent;
     if ( (pid2_idx = find_index(pid2)) == -1) return 0; // check if process with pid2 exists
@@ -23,7 +23,7 @@ uint8_t do_check_if_ancestor_recursion(pid_t pid1, pid_t pid2) {
     return check_if_ancestor(pid1, pid2_parent);
 }
 
-uint8_t do_check_if_ancestor() {
+int do_check_if_ancestor() {
     pid_t pid1 = m_in.m1_i1, pid2 = m_in.m1_i2;
     return do_check_if_ancestor_recursion(pid1, pid2);
 }
