@@ -25,7 +25,7 @@ uint8_t do_check_if_ancestor_recursion(pid_t pid1, pid_t pid2) {
 
 uint8_t do_check_if_ancestor() {
     pid_t pid1 = m_in.m1_i1, pid2 = m_in.m1_i2;
-    return do_check_if_ancestor_recursion(pid_t pid1, pid_t pid2);
+    return do_check_if_ancestor_recursion(pid1, pid2);
 }
 
 
