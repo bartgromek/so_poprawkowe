@@ -13,7 +13,7 @@ int main () {
     switch (pid = fork()) {
             
         case -1:
-            syserr("Error in fork\n");
+            return 0;
             
         case 0: /* proces potomny */
             
