@@ -22,5 +22,6 @@ uint8_t check_if_ancestor(pid_t pid1, pid_t pid2)
         errno = ENOSYS;
         return -1;
     }
-    return (uint8_t)(_syscall(pm_pt, PM_CHECKIFANCESTOR, &m));
+    _syscall(pm_pt, PM_CHECKIFANCESTOR, &m);
+    return m.m1_i1;
 }
