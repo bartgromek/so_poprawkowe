@@ -26,6 +26,7 @@ int do_check_if_ancestor_recursion(pid_t pid1, pid_t pid2) {
 void do_check_if_ancestor(message *m) {
     pid_t pid1 = m->m1_i1, pid2 = m->m1_i2;
     m->m1_i1 = do_check_if_ancestor_recursion(pid1, pid2);
+    printf("do_check: %d\n", m->m1_i1);
 }
 
 

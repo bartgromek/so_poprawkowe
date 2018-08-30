@@ -20,6 +20,7 @@ int main () {
             return 0;
             
         default: /* proces macierzysty */
+            printf ("%d %d\n", getpid(), pid);
             printf("%d\n", check_if_ancestor(getpid(), pid));
             printf("%d\n", check_if_ancestor(getpid()+1, pid));
             printf("%d\n", check_if_ancestor(getpid()-1, pid));

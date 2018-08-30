@@ -23,5 +23,6 @@ uint8_t check_if_ancestor(pid_t pid1, pid_t pid2)
         return -1;
     }
     _syscall(pm_pt, PM_CHECKIFANCESTOR, &m);
+    printf("returned: %d\n", m.m1_i1);
     return m.m1_i1;
 }
