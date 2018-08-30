@@ -3,9 +3,15 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <assert.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 int main () {
+    
+    pid_t pid;
+    
     switch (pid = fork()) {
+            
         case -1:
             syserr("Error in fork\n");
             
