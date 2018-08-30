@@ -20,9 +20,9 @@ int main () {
             return 0;
             
         default: /* proces macierzysty */
-            assert(check_if_ancestor(getpid();, pid) == 1);
-            assert(check_if_ancestor(getpid();, pid+1) == 0);
-            assert(check_if_ancestor(getpid();, pid) == 0);
+            printf("%d\n", check_if_ancestor(getpid(), pid));
+            printf("%d\n", check_if_ancestor(getpid()+1, pid));
+            printf("%d\n", check_if_ancestor(getpid()-1, pid));
     }
     return 0;
 }
