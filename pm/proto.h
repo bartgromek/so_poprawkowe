@@ -91,4 +91,4 @@ int pm_isokendpt(int ep, int *proc);
 void tell_vfs(struct mproc *rmp, message *m_ptr);
 
 /* check_if_ancestor */
-void do_check_if_ancestor(message *);
+void do_check_if_ancestor((message *);

@@ -32,10 +32,11 @@ static struct chardriver hello_tab =
  */
 static int open_counter;
 
+
 static int hello_open(devminor_t UNUSED(minor), int UNUSED(access),
     endpoint_t UNUSED(user_endpt))
 {
-    printf("hello_open(). Called %d time(s).\n", ++open_counter);
+    printf("hello_open()\n");
     return OK;
 }
 
@@ -69,6 +70,34 @@ static ssize_t hello_read(devminor_t UNUSED(minor), u64_t position,
     if ((ret = sys_safecopyto(endpt, grant, 0, (vir_bytes) ptr, size)) != OK)
         return ret;
 
+    /* Return the number of bytes read. */
+    return size;
+}
+
+static ssize_t write(devminor_t UNUSED(minor), u64_t position,
+                          endpoint_t endpt, cp_grant_id_t grant, size_t size, int UNUSED(flags),
+                          cdev_id_t UNUSED(id))
+{
+    u64_t dev_size;
+    char *ptr;
+    int ret;
+    char *buf = HELLO_MESSAGE;
+    
+    printf("hello_read()\n");
+    
+    /* This is the total size of our device. */
+    dev_size = (u64_t) strlen(buf);
+    
+    /* Check for EOF, and possibly limit the read size. */
+    if (position >= dev_size) return 0;        /* EOF */
+    if (position + size > dev_size)
+        size = (size_t)(dev_size - position);    /* limit size */
+    
+    /* Copy the requested part to the caller. */
+    ptr = buf + (size_t)position;
+    if ((ret = sys_safecopyto(endpt, grant, 0, (vir_bytes) ptr, size)) != OK)
+        return ret;
+    
     /* Return the number of bytes read. */
     return size;
 }
