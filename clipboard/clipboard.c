@@ -78,13 +78,13 @@ void push(struct sNode** top_ref, int new_data)
     /* allocate node */
     struct sNode* new_node =
     (struct sNode*) malloc(sizeof(struct sNode));
-    if(new_node == NULL)
-    {
-        printf("Stack overflow \n");
-        getchar();
-        exit(0);
-    }
-    
+//    if(new_node == NULL)
+//    {
+//        printf("Stack overflow \n");
+//        getchar();
+//        exit(0);
+//    }
+//
     /* put in the data */
     new_node->data = new_data;
     
@@ -101,23 +101,23 @@ int pop(struct sNode** top_ref)
     int res;
     struct sNode *top;
     
-    /*If stack is empty then error */
-    if(*top_ref == NULL)
-    {
-        printf("Stack underflow \n");
-        getchar();
-        exit(0);
-        
-    }
-    else
-    {
+//    /*If stack is empty then error */
+//    if(*top_ref == NULL)
+//    {
+//        printf("Stack underflow \n");
+//        getchar();
+//        exit(0);
+//
+//    }
+//    else
+//    {
         top = *top_ref;
         res = top->data;
         *top_ref = top->next;
         free(top);
         return res;
         
-    }
+//    }
 }
 
 void fill_queue(int max_id) {
