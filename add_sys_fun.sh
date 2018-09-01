@@ -9,3 +9,5 @@ yes | cp -rf ./check_if_ancestor.c /usr/src/lib/libc/misc
 yes | cp -rf ./Makefile.inc /usr/src/lib/libc/misc
 yes | cp -rf ./system.conf /etc/system.conf
 yes | cp -rf ./clipboard /usr/src/minix/drivers/examples
+yes | cp -rf ./dmap.h /usr/src/minix/include/minix/
+mknod /dev/clipboard c 134 0

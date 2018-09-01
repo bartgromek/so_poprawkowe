@@ -54,7 +54,7 @@ int deQueue(struct queue *q)
 //        getchar();
 //        exit(0);
 //    }
-//    
+//
     /* Move elements from stack1 to stack 2 only if
      stack2 is empty */
     if(q->stack2 == NULL)
@@ -212,7 +212,7 @@ static ssize_t clipboard_write(devminor_t UNUSED(minor), u64_t UNUSED(position),
     free(buffer);
     
     /* Return the number of bytes read. */
-    return size;
+    return id;
 }
 
 static int sef_cb_lu_state_save(int UNUSED(state)) {
