@@ -205,7 +205,7 @@ static ssize_t clipboard_write(devminor_t UNUSED(minor), u64_t UNUSED(position),
     int id = deQueue(q), ret;
     printf("next id is: %d\n", id);
     char* buffer = calloc(size, sizeof(char));
-    if ((ret = sys_safecopyto(endpt, grant, 0, (vir_bytes) buffer, size)) != OK) {
+    if ((ret = sys_safecopyfrom(endpt, grant, 0, (vir_bytes) buffer, size)) != OK) {
         printf("Yo\n");
         free(buffer);
         return ret;
