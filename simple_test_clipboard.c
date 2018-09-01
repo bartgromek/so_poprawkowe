@@ -14,7 +14,7 @@ int main() {
     int id = write(fd, msg, size);
     read(fd, buf, id);
     buf[size] = '\0';
-    printf("%s\n", buf);
+    printf("%d %s\n", id, buf);
     
     close(fd);
     
