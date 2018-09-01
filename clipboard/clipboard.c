@@ -12,6 +12,16 @@ struct sNode
     struct sNode *next;
 };
 
+typedef struct Registration{
+    char* buffer;
+    size_t len;
+} reg;
+
+int free_ids;
+int *captured_idx;
+reg** regs;
+struct queue *q;
+
 /* Function to push an item to stack*/
 void push(struct sNode** top_ref, int new_data);
 
@@ -23,7 +33,7 @@ struct queue
 {
     struct sNode *stack1;
     struct sNode *stack2;
-    int size = 0;
+    int size;
 };
 
 /* Function to enqueue an item to queue */
@@ -130,9 +140,9 @@ static int clipboard_open(devminor_t minor, int access, endpoint_t user_endpt);
 static int clipboard_close(devminor_t minor);
 static ssize_t clipboard_read(devminor_t minor, u64_t position, endpoint_t endpt,
     cp_grant_id_t grant, size_t size, int flags, cdev_id_t id);
-static ssize_t clipboard_write(devminor_t UNUSED(minor), u64_t UNUSED(position),
+static ssize_t clipboard_write(devminor_t UNUSED(minor), u64_t position,
                         endpoint_t endpt, cp_grant_id_t grant, size_t size, int UNUSED(flags),
-                        cdev_id_t UNUSED(id))
+                        cdev_id_t id)
 
 /* SEF functions and variables. */
 static void sef_local_startup(void);
@@ -148,16 +158,6 @@ static struct chardriver clipboard_tab =
     .cdr_read	= clipboard_read,
     .cdr_write   = clipboard_write,
 };
-
-typedef struct Registration{
-    char* buffer;
-    size_t len;
-} reg;
-
-int free_ids;
-int *captured_idx;
-reg* regs;
-struct queue *q;
 
 static int clipboard_open(devminor_t UNUSED(minor), int UNUSED(access),
     endpoint_t UNUSED(user_endpt))
@@ -199,7 +199,7 @@ static ssize_t clipboard_write(devminor_t UNUSED(minor), u64_t UNUSED(position),
                           endpoint_t endpt, cp_grant_id_t grant, size_t size, int UNUSED(flags),
                           cdev_id_t UNUSED(id))
 {
-    int id = deQueue(q);
+    int id = deQueue(q), ret;
     char* buffer = calloc(size, sizeof(char));
     if ((ret = sys_safecopyto(endpt, grant, 0, (vir_bytes) buffer, size)) != OK) {
         free(buffer);
@@ -230,9 +230,9 @@ static int lu_state_restore() {
     ds_delete_u32("free_ids");
     free_ids = (int) ids;
     regs = calloc(MAX_REGS, sizeof(reg));
-    ds_retrieve_mem("regs", regs, &size);
+    ds_retrieve_mem("regs", (char*)regs, &size);
     q = calloc(1, sizeof(struct queue));
-    ds_retrieve_mem("queue", q, &free_ids);
+    ds_retrieve_mem("queue", (char *)q, &free_ids);
     ds_delete_u32("free_ids");
     ds_delete_mem("queue");
     ds_delete_mem("regs");
@@ -270,6 +270,7 @@ static int sef_cb_init(int type, sef_init_info_t *UNUSED(info))
         case SEF_INIT_FRESH:
             q = calloc(1, sizeof(struct queue));
             q->stack1 = NULL;
+            q->size = 0;
             regs = calloc(MAX_REGS, sizeof(reg));
             captured_idx = calloc(MAX_REGS, sizeof(int));
             free_ids = MAX_REGS;
@@ -281,11 +282,11 @@ static int sef_cb_init(int type, sef_init_info_t *UNUSED(info))
             lu_state_restore();
             do_announce_driver = FALSE;
 
-            printf("%sHey, I'm a new version!");
+            printf("Hey, I'm a new version!");
         break;
 
         case SEF_INIT_RESTART:
-            printf("%sHey, I've just been restarted!");
+            printf("Hey, I've just been restarted!");
         break;
     }
 
