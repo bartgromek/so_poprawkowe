@@ -3,5 +3,5 @@
 
 /** The Hello, World! message. */
 #define HELLO_MESSAGE "Hello, World!\n"
-#define DEVICE_SIZE 1024
+#define MAX_REGS 100
 #endif /* __HELLO_H */

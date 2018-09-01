@@ -5,6 +5,115 @@
 #include <minix/ds.h>
 #include "hello.h"
 
+/* structure of a stack node */
+struct sNode
+{
+    int data;
+    struct sNode *next;
+};
+
+/* Function to push an item to stack*/
+void push(struct sNode** top_ref, int new_data);
+
+/* Function to pop an item from stack*/
+int pop(struct sNode** top_ref);
+
+/* structure of queue having two stacks */
+struct queue
+{
+    struct sNode *stack1;
+    struct sNode *stack2;
+};
+
+/* Function to enqueue an item to queue */
+void enQueue(struct queue *q, int x)
+{
+    push(&q->stack1, x);
+}
+
+/* Function to dequeue an item from queue */
+int deQueue(struct queue *q)
+{
+    int x;
+    /* If both stacks are empty then error */
+    if(q->stack1 == NULL && q->stack2 == NULL)
+    {
+        printf("Q is empty");
+        getchar();
+        exit(0);
+    }
+    
+    /* Move elements from stack1 to stack 2 only if
+     stack2 is empty */
+    if(q->stack2 == NULL)
+    {
+        while(q->stack1 != NULL)
+        {
+            x = pop(&q->stack1);
+            push(&q->stack2, x);
+            
+        }
+    }
+    
+    x = pop(&q->stack2);
+    return x;
+}
+
+/* Function to push an item to stack*/
+void push(struct sNode** top_ref, int new_data)
+{
+    /* allocate node */
+    struct sNode* new_node =
+    (struct sNode*) malloc(sizeof(struct sNode));
+    if(new_node == NULL)
+    {
+        printf("Stack overflow \n");
+        getchar();
+        exit(0);
+    }
+    
+    /* put in the data */
+    new_node->data = new_data;
+    
+    /* link the old list off the new node */
+    new_node->next = (*top_ref);
+    
+    /* move the head to point to the new node */
+    (*top_ref) = new_node;
+}
+
+/* Function to pop an item from stack*/
+int pop(struct sNode** top_ref)
+{
+    int res;
+    struct sNode *top;
+    
+    /*If stack is empty then error */
+    if(*top_ref == NULL)
+    {
+        printf("Stack underflow \n");
+        getchar();
+        exit(0);
+        
+    }
+    else
+    {
+        top = *top_ref;
+        res = top->data;
+        *top_ref = top->next;
+        free(top);
+        return res;
+        
+    }
+}
+
+void fill_queue(int max_idx) {
+    int i;
+    for (i = 0; i < max_idx; ++i) {
+        enQueue(q, i);
+    }
+}
+
 /*
  * Function prototypes for the hello driver.
  */
@@ -28,13 +137,16 @@ static struct chardriver hello_tab =
     .cdr_write   = clipboard_write,
 };
 
-/** State variable to count the number of times the device has been opened.
- * Note that this is not the regular type of open counter: it never decreases.
- */
-static int open_counter;
-int length;
-char *end;
-char *buffer;
+typedef struct Registration{
+    char* buffer;
+    size_t len;
+} reg;
+
+int free_ids;
+int* captured_regs;
+reg* regs[100];
+struct queue *q;
+q->stack1 = NULL;
 
 static int clipboard_open(devminor_t UNUSED(minor), int UNUSED(access),
     endpoint_t UNUSED(user_endpt))
@@ -49,57 +161,53 @@ static int clipboard_close(devminor_t UNUSED(minor))
     return OK;
 }
 
-static ssize_t clipboard_read(devminor_t UNUSED(minor), u64_t position,
+static ssize_t clipboard_read(devminor_t UNUSED(minor), u64_t UNUSED(position),
     endpoint_t endpt, cp_grant_id_t grant, size_t size, int UNUSED(flags),
     cdev_id_t UNUSED(id))
 {
-    u64_t dev_size;
-    char *ptr;
     int ret;
-    char *buf = HELLO_MESSAGE;
-
-    printf("hello_read()\n");
-
-    /* This is the total size of our device. */
-    dev_size = (u64_t) strlen(buf);
-
-    /* Check for EOF, and possibly limit the read size. */
-    if (position >= dev_size) return 0;		/* EOF */
-    if (position + size > dev_size)
-        size = (size_t)(dev_size - position);	/* limit size */
+    int id = (int) size;
+    
+    /* id out of range */
+    if (id < 0 || id >= MAX_REGS)
+        return -1;
+    
+    /* there is no reg with given id */
+    if (!captured_regs[id])
+        return -1;
+    
+    size_t len = regs[id]->len;
+    char *text = calloc(len, sizeof(char));
+    strcpy(text, regs[id]->buffer);
+    free(regs[id]->buffer);
+    free(regs[id]);
+    enQueue(q, id);
 
     /* Copy the requested part to the caller. */
-    ptr = buf + (size_t)position;
-    if ((ret = sys_safecopyto(endpt, grant, 0, (vir_bytes) ptr, size)) != OK)
+    if ((ret = sys_safecopyto(endpt, grant, 0, (vir_bytes) text, len)) != OK){
+        free(text);
         return ret;
+    }
 
     /* Return the number of bytes read. */
-    return size;
+    return len;
 }
 
-static ssize_t clipboard_write(devminor_t UNUSED(minor), u64_t position,
+static ssize_t clipboard_write(devminor_t UNUSED(minor), u64_t UNUSED(position),
                           endpoint_t endpt, cp_grant_id_t grant, size_t size, int UNUSED(flags),
                           cdev_id_t UNUSED(id))
 {
-    u64_t dev_size;
-    char *ptr;
-    int ret;
-    char *buf = HELLO_MESSAGE;
-    
-    printf("hello_read()\n");
-    
-    /* This is the total size of our device. */
-    dev_size = (u64_t) strlen(buf);
-    
-    /* Check for EOF, and possibly limit the read size. */
-    if (position >= dev_size) return 0;        /* EOF */
-    if (position + size > dev_size)
-        size = (size_t)(dev_size - position);    /* limit size */
-    
-    /* Copy the requested part to the caller. */
-    ptr = buf + (size_t)position;
-    if ((ret = sys_safecopyto(endpt, grant, 0, (vir_bytes) ptr, size)) != OK)
+    int id = deQueue(q);
+    char* buffer = calloc(size, sizeof(char));
+    if ((ret = sys_safecopyto(endpt, grant, 0, (vir_bytes) buffer, size)) != OK) {
+        free(buffer);
         return ret;
+    }
+    
+    regs[id] = calloc(1, sizeof(reg));
+    regs[id]->buffer = calloc(size, sizeof(char));
+    strcpy(regs[id]->buffer, buffer);
+    free(buffer);
     
     /* Return the number of bytes read. */
     return size;
@@ -154,7 +262,9 @@ static int sef_cb_init(int type, sef_init_info_t *UNUSED(info))
     open_counter = 0;
     switch(type) {
         case SEF_INIT_FRESH:
-            printf("%s", HELLO_MESSAGE);
+            q = (struct queue*)malloc(sizeof(struct queue));
+            fill_queue(MAX_REGS);
+            free_ids = MAX_REGS;
         break;
 
         case SEF_INIT_LU:
