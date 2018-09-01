@@ -142,7 +142,7 @@ static ssize_t clipboard_read(devminor_t minor, u64_t position, endpoint_t endpt
     cp_grant_id_t grant, size_t size, int flags, cdev_id_t id);
 static ssize_t clipboard_write(devminor_t UNUSED(minor), u64_t position,
                         endpoint_t endpt, cp_grant_id_t grant, size_t size, int UNUSED(flags),
-                        cdev_id_t id)
+                               cdev_id_t id);
 
 /* SEF functions and variables. */
 static void sef_local_startup(void);
