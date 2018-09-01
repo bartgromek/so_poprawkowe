@@ -48,13 +48,13 @@ int deQueue(struct queue *q)
 {
     int x;
     /* If both stacks are empty then error */
-    if(q->stack1 == NULL && q->stack2 == NULL)
-    {
-        printf("Q is empty");
-        getchar();
-        exit(0);
-    }
-    
+//    if(q->stack1 == NULL && q->stack2 == NULL)
+//    {
+//        printf("Q is empty");
+//        getchar();
+//        exit(0);
+//    }
+//    
     /* Move elements from stack1 to stack 2 only if
      stack2 is empty */
     if(q->stack2 == NULL)
