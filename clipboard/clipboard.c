@@ -176,6 +176,7 @@ static ssize_t clipboard_read(devminor_t UNUSED(minor), u64_t UNUSED(position),
     endpoint_t endpt, cp_grant_id_t grant, size_t size, int UNUSED(flags),
     cdev_id_t UNUSED(id))
 {
+    printf("read\n");
     int ret;
     int id = (int) size;
     printf("trying to read msg with id: %d\n", id);
