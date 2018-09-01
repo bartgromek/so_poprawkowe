@@ -1,0 +1,83 @@
+    compile  clipboard/clipboard.o
+clipboard.c:26:13: error: expected ';' at end of declaration list
+    int size = 0;
+            ^
+            ;
+clipboard.c:116:17: error: use of undeclared identifier 'q'
+        enQueue(q, i);
+                ^
+clipboard.c:121:21: error: use of undeclared identifier 'q'
+    for (i = 0; i < q->size; ++i)
+                    ^
+clipboard.c:122:17: error: use of undeclared identifier 'q'
+        deQueue(q);
+                ^
+clipboard.c:123:10: error: use of undeclared identifier 'q'
+    free(q);
+         ^
+clipboard.c:135:46: error: expected ';' after top level declarator
+                        cdev_id_t UNUSED(id))
+                                             ^
+                                             ;
+clipboard.c:181:26: error: member reference type 'reg' (aka 'struct Registration') is not a pointer; maybe you meant to use '.'?
+    size_t len = regs[id]->len;
+                 ~~~~~~~~^~
+                         .
+clipboard.c:183:26: error: member reference type 'reg' (aka 'struct Registration') is not a pointer; maybe you meant to use '.'?
+    strcpy(text, regs[id]->buffer);
+                 ~~~~~~~~^~
+                         .
+clipboard.c:184:18: error: member reference type 'reg' (aka 'struct Registration') is not a pointer; maybe you meant to use '.'?
+    free(regs[id]->buffer);
+         ~~~~~~~~^~
+                 .
+clipboard.c:185:10: error: passing 'reg' (aka 'struct Registration') to parameter of incompatible type 'void *'
+    free(regs[id]);
+         ^~~~~~~~
+/usr/include/stdlib.h:112:18: note: passing argument to parameter here
+void     free(void *);
+                    ^
+clipboard.c:204:10: error: use of undeclared identifier 'ret'; did you mean 'reg'?
+    if ((ret = sys_safecopyto(endpt, grant, 0, (vir_bytes) buffer, size)) != OK) {
+         ^
+clipboard.c:155:3: note: 'reg' declared here
+} reg;
+  ^
+clipboard.c:206:16: error: use of undeclared identifier 'ret'
+        return ret;
+               ^
+clipboard.c:209:14: error: assigning to 'reg' (aka 'struct Registration') from incompatible type 'void *'
+    regs[id] = calloc(1, sizeof(reg));
+             ^ ~~~~~~~~~~~~~~~~~~~~~~
+clipboard.c:210:13: error: member reference type 'reg' (aka 'struct Registration') is not a pointer; maybe you meant to use '.'?
+    regs[id]->buffer = calloc(size, sizeof(char));
+    ~~~~~~~~^~
+            .
+clipboard.c:210:22: error: expression is not assignable
+    regs[id]->buffer = calloc(size, sizeof(char));
+    ~~~~~~~~~~~~~~~~ ^
+clipboard.c:211:20: error: member reference type 'reg' (aka 'struct Registration') is not a pointer; maybe you meant to use '.'?
+    strcpy(regs[id]->buffer, buffer);
+           ~~~~~~~~^~
+                   .
+clipboard.c:233:29: error: incompatible pointer types passing 'reg *' (aka 'struct Registration *') to parameter of type 'char *' [-Werror,-Wincompatible-pointer-types]
+    ds_retrieve_mem("regs", regs, &size);
+                            ^~~~
+/usr/include/minix/ds.h:49:48: note: passing argument to parameter 'vaddr' here
+int ds_retrieve_mem(const char *ds_name, char *vaddr, size_t *length);
+                                               ^
+clipboard.c:235:30: error: incompatible pointer types passing 'struct queue *' to parameter of type 'char *' [-Werror,-Wincompatible-pointer-types]
+    ds_retrieve_mem("queue", q, &free_ids);
+                             ^
+/usr/include/minix/ds.h:49:48: note: passing argument to parameter 'vaddr' here
+int ds_retrieve_mem(const char *ds_name, char *vaddr, size_t *length);
+                                               ^
+clipboard.c:284:22: error: more '%' conversions than data arguments [-Werror,-Wformat]
+            printf("%sHey, I'm a new version!");
+                    ~^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.
+*** Error code 1
+
+Stop.
+make: stopped in /usr/src/minix/drivers/examples/clipboard
