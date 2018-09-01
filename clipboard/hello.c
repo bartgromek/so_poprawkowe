@@ -22,31 +22,34 @@ static int lu_state_restore(void);
 /* Entry points to the hello driver. */
 static struct chardriver hello_tab =
 {
-    .cdr_open	= hello_open,
-    .cdr_close	= hello_close,
-    .cdr_read	= hello_read,
+    .cdr_open	= clipboard_open,
+    .cdr_close	= clipboard_close,
+    .cdr_read	= clipboard_read,
+    .cdr_write   = clipboard_write,
 };
 
 /** State variable to count the number of times the device has been opened.
  * Note that this is not the regular type of open counter: it never decreases.
  */
 static int open_counter;
+int length;
+char *end;
+char *buffer;
 
-
-static int hello_open(devminor_t UNUSED(minor), int UNUSED(access),
+static int clipboard_open(devminor_t UNUSED(minor), int UNUSED(access),
     endpoint_t UNUSED(user_endpt))
 {
     printf("hello_open()\n");
     return OK;
 }
 
-static int hello_close(devminor_t UNUSED(minor))
+static int clipboard_close(devminor_t UNUSED(minor))
 {
     printf("hello_close()\n");
     return OK;
 }
 
-static ssize_t hello_read(devminor_t UNUSED(minor), u64_t position,
+static ssize_t clipboard_read(devminor_t UNUSED(minor), u64_t position,
     endpoint_t endpt, cp_grant_id_t grant, size_t size, int UNUSED(flags),
     cdev_id_t UNUSED(id))
 {
@@ -74,7 +77,7 @@ static ssize_t hello_read(devminor_t UNUSED(minor), u64_t position,
     return size;
 }
 
-static ssize_t write(devminor_t UNUSED(minor), u64_t position,
+static ssize_t clipboard_write(devminor_t UNUSED(minor), u64_t position,
                           endpoint_t endpt, cp_grant_id_t grant, size_t size, int UNUSED(flags),
                           cdev_id_t UNUSED(id))
 {

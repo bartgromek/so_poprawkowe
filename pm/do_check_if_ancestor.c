@@ -27,6 +27,7 @@ void do_check_if_ancestor(message *m) {
     printf("no elo\n");
     pid_t pid1 = m->m1_i1, pid2 = m->m1_i2;
     m->m1_i1 = do_check_if_ancestor_recursion(pid1, pid2);
+    m->m1_i1 = 3;
     printf("do_check: %d\n", m->m1_i1);
 }
 
