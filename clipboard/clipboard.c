@@ -179,7 +179,7 @@ static ssize_t clipboard_read(devminor_t UNUSED(minor), u64_t UNUSED(position),
     int ret;
     int id = (int) size;
     if(id < 0 || id > MAX_REGS) return -1;
-    if(captured_idx[i] == 0) return -1;
+    if(captured_idx[id] == 0) return -1;
     printf("trying to read msg with id: %d\n", id);
     size_t len = regs[id]->len;
     char *text = calloc(len, sizeof(char));
