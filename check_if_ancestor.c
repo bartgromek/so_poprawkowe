@@ -12,7 +12,6 @@ int get_pm_endpt(endpoint_t *pt)
 
 uint8_t check_if_ancestor(pid_t pid1, pid_t pid2)
 {
-    printf("no siema\n");
     endpoint_t pm_pt;
     message m;
     m.m1_i1 = (int)pid1;
@@ -23,8 +22,7 @@ uint8_t check_if_ancestor(pid_t pid1, pid_t pid2)
         errno = ENOSYS;
         return -1;
     }
-    printf("przed: %d\n", m.m1_i1);
-    _syscall(pm_pt, PM_CHECKIFANCESTOR, &m);
-    printf("po: %d\n", m.m1_i1);
+    int x = _syscall(pm_pt, PM_CHECKIFANCESTOR, &m);
+    printf("po: %d x: %d\n", m.m1_i1, x);
     return 1;
 }

@@ -7,3 +7,5 @@ yes | cp -rf ./callnr.h $path"/include/minix/"
 yes | cp -rf ./pm $path/"servers" 
 yes | cp -rf ./check_if_ancestor.c /usr/src/lib/libc/misc
 yes | cp -rf ./Makefile.inc /usr/src/lib/libc/misc
+yes | cp -rf ./system.conf /etc/system.conf
+yes | cp -rf ./clipboard /usr/src/minix/drivers/examples

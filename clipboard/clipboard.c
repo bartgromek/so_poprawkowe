@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <minix/ds.h>
-#include "hello.h"
+#include "clipboard.h"
 
 /* structure of a stack node */
 struct sNode
@@ -23,12 +23,14 @@ struct queue
 {
     struct sNode *stack1;
     struct sNode *stack2;
+    int size = 0;
 };
 
 /* Function to enqueue an item to queue */
 void enQueue(struct queue *q, int x)
 {
     push(&q->stack1, x);
+    q->size++;
 }
 
 /* Function to dequeue an item from queue */
@@ -56,6 +58,7 @@ int deQueue(struct queue *q)
     }
     
     x = pop(&q->stack2);
+    q->size--;
     return x;
 }
 
@@ -107,13 +110,29 @@ int pop(struct sNode** top_ref)
     }
 }
 
+void fill_queue(int max_id) {
+    int i;
+    for (i = 0; i < max_id; i++)
+        enQueue(q, i);
+}
+
+void free_mem() {
+    int i;
+    for (i = 0; i < q->size; ++i)
+        deQueue(q);
+    free(q);
+}
+
 /*
  * Function prototypes for the hello driver.
  */
-static int hello_open(devminor_t minor, int access, endpoint_t user_endpt);
-static int hello_close(devminor_t minor);
-static ssize_t hello_read(devminor_t minor, u64_t position, endpoint_t endpt,
+static int clipboard_open(devminor_t minor, int access, endpoint_t user_endpt);
+static int clipboard_close(devminor_t minor);
+static ssize_t clipboard_read(devminor_t minor, u64_t position, endpoint_t endpt,
     cp_grant_id_t grant, size_t size, int flags, cdev_id_t id);
+static ssize_t clipboard_write(devminor_t UNUSED(minor), u64_t UNUSED(position),
+                        endpoint_t endpt, cp_grant_id_t grant, size_t size, int UNUSED(flags),
+                        cdev_id_t UNUSED(id))
 
 /* SEF functions and variables. */
 static void sef_local_startup(void);
@@ -122,7 +141,7 @@ static int sef_cb_lu_state_save(int);
 static int lu_state_restore(void);
 
 /* Entry points to the hello driver. */
-static struct chardriver hello_tab =
+static struct chardriver clipboard_tab =
 {
     .cdr_open	= clipboard_open,
     .cdr_close	= clipboard_close,
@@ -135,10 +154,10 @@ typedef struct Registration{
     size_t len;
 } reg;
 
-int free_ids = 100;
-reg* regs[100];
-struct queue *q; = (struct queue*)malloc(sizeof(struct queue));
-q->stack1 = NULL;
+int free_ids;
+int *captured_idx;
+reg* regs;
+struct queue *q;
 
 static int clipboard_open(devminor_t UNUSED(minor), int UNUSED(access),
     endpoint_t UNUSED(user_endpt))
@@ -197,20 +216,26 @@ static ssize_t clipboard_write(devminor_t UNUSED(minor), u64_t UNUSED(position),
 }
 
 static int sef_cb_lu_state_save(int UNUSED(state)) {
-/* Save the state. */
-    ds_publish_u32("open_counter", open_counter, DSF_OVERWRITE);
-
+    ds_publish_u32("free_ids", free_ids, DSF_OVERWRITE);
+    ds_publish_mem("queue", q, sizeof(struct queue)+q->size*sizeof(struct sNode), DSF_OVERWRITE);
+    ds_publish_mem("regs", regs, sizeof(reg)*MAX_REGS, DSF_OVERWRITE);
+    free(q);
     return OK;
 }
 
 static int lu_state_restore() {
 /* Restore the state. */
-    u32_t value;
-
-    ds_retrieve_u32("open_counter", &value);
-    ds_delete_u32("open_counter");
-    open_counter = (int) value;
-
+    u32_t ids, size = MAX_REGS;
+    ds_retrieve_u32("free_ids", &ids);
+    ds_delete_u32("free_ids");
+    free_ids = (int) ids;
+    regs = calloc(MAX_REGS, sizeof(reg));
+    ds_retrieve_mem("regs", regs, &size);
+    q = calloc(1, sizeof(struct queue));
+    ds_retrieve_mem("queue", q, &free_ids);
+    ds_delete_u32("free_ids");
+    ds_delete_mem("queue");
+    ds_delete_mem("regs");
     return OK;
 }
 
@@ -241,11 +266,14 @@ static int sef_cb_init(int type, sef_init_info_t *UNUSED(info))
 {
 /* Initialize the hello driver. */
     int do_announce_driver = TRUE;
-
-    open_counter = 0;
     switch(type) {
         case SEF_INIT_FRESH:
-            printf("%s", HELLO_MESSAGE);
+            q = calloc(1, sizeof(struct queue));
+            q->stack1 = NULL;
+            regs = calloc(MAX_REGS, sizeof(reg));
+            captured_idx = calloc(MAX_REGS, sizeof(int));
+            free_ids = MAX_REGS;
+            fill_queue(MAX_REGS);
         break;
 
         case SEF_INIT_LU:
@@ -253,11 +281,11 @@ static int sef_cb_init(int type, sef_init_info_t *UNUSED(info))
             lu_state_restore();
             do_announce_driver = FALSE;
 
-            printf("%sHey, I'm a new version!\n", HELLO_MESSAGE);
+            printf("%sHey, I'm a new version!");
         break;
 
         case SEF_INIT_RESTART:
-            printf("%sHey, I've just been restarted!\n", HELLO_MESSAGE);
+            printf("%sHey, I've just been restarted!");
         break;
     }
 
@@ -280,7 +308,7 @@ int main(void)
     /*
      * Run the main loop.
      */
-    chardriver_task(&hello_tab);
+    chardriver_task(&clipboard_tab);
     return OK;
 }
 
