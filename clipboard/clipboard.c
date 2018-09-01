@@ -178,9 +178,9 @@ static ssize_t clipboard_read(devminor_t UNUSED(minor), u64_t UNUSED(position),
 {
     int ret;
     int id = (int) size;
+    printf("trying to read msg with id: %d\n", id);
     if(id < 0 || id > MAX_REGS) return -1;
     if(captured_idx[id] == 0) return -1;
-    printf("trying to read msg with id: %d\n", id);
     size_t len = regs[id]->len;
     char *text = calloc(len, sizeof(char));
     strcpy(text, regs[id]->buffer);
@@ -206,7 +206,6 @@ static ssize_t clipboard_write(devminor_t UNUSED(minor), u64_t UNUSED(position),
     printf("next id is: %d\n", id);
     char* buffer = calloc(size, sizeof(char));
     if ((ret = sys_safecopyfrom(endpt, grant, 0, (vir_bytes) buffer, size)) != OK) {
-        printf("Yo\n");
         free(buffer);
         return ret;
     }
