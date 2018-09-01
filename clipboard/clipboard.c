@@ -275,7 +275,7 @@ static int sef_cb_init(int type, sef_init_info_t *UNUSED(info))
             q = calloc(1, sizeof(struct queue));
             q->stack1 = NULL;
             q->size = 0;
-            regs = calloc(MAX_REGS, sizeof(*reg));
+            regs = calloc(MAX_REGS, sizeof(reg*));
             captured_idx = calloc(MAX_REGS, sizeof(int));
             free_ids = MAX_REGS;
             fill_queue(MAX_REGS);
