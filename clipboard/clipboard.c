@@ -107,13 +107,6 @@ int pop(struct sNode** top_ref)
     }
 }
 
-void fill_queue(int max_idx) {
-    int i;
-    for (i = 0; i < max_idx; ++i) {
-        enQueue(q, i);
-    }
-}
-
 /*
  * Function prototypes for the hello driver.
  */
@@ -142,10 +135,9 @@ typedef struct Registration{
     size_t len;
 } reg;
 
-int free_ids;
-int* captured_regs;
+int free_ids = 100;
 reg* regs[100];
-struct queue *q;
+struct queue *q; = (struct queue*)malloc(sizeof(struct queue));
 q->stack1 = NULL;
 
 static int clipboard_open(devminor_t UNUSED(minor), int UNUSED(access),
@@ -167,15 +159,6 @@ static ssize_t clipboard_read(devminor_t UNUSED(minor), u64_t UNUSED(position),
 {
     int ret;
     int id = (int) size;
-    
-    /* id out of range */
-    if (id < 0 || id >= MAX_REGS)
-        return -1;
-    
-    /* there is no reg with given id */
-    if (!captured_regs[id])
-        return -1;
-    
     size_t len = regs[id]->len;
     char *text = calloc(len, sizeof(char));
     strcpy(text, regs[id]->buffer);
@@ -262,9 +245,7 @@ static int sef_cb_init(int type, sef_init_info_t *UNUSED(info))
     open_counter = 0;
     switch(type) {
         case SEF_INIT_FRESH:
-            q = (struct queue*)malloc(sizeof(struct queue));
-            fill_queue(MAX_REGS);
-            free_ids = MAX_REGS;
+            printf("%s", HELLO_MESSAGE);
         break;
 
         case SEF_INIT_LU:

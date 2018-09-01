@@ -1,6 +1,6 @@
-# Makefile for the hello driver.
-PROG=	hello
-SRCS=	hello.c
+# Makefile for the clipboard driver.
+PROG=	clipboard
+SRCS=	clipboard.c
 
 DPADD+=	${LIBCHARDRIVER} ${LIBSYS}
 LDADD+=	-lchardriver -lsys
