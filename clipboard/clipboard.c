@@ -140,8 +140,8 @@ static int clipboard_open(devminor_t minor, int access, endpoint_t user_endpt);
 static int clipboard_close(devminor_t minor);
 static ssize_t clipboard_read(devminor_t minor, u64_t position, endpoint_t endpt,
     cp_grant_id_t grant, size_t size, int flags, cdev_id_t id);
-static ssize_t clipboard_write(devminor_t UNUSED(minor), u64_t position,
-                        endpoint_t endpt, cp_grant_id_t grant, size_t size, int UNUSED(flags),
+static ssize_t clipboard_write(devminor_t minor, u64_t position,
+                        endpoint_t endpt, cp_grant_id_t grant, size_t size, int flags,
                                cdev_id_t id);
 
 /* SEF functions and variables. */
@@ -178,13 +178,16 @@ static ssize_t clipboard_read(devminor_t UNUSED(minor), u64_t UNUSED(position),
 {
     int ret;
     int id = (int) size;
+    if(id < 0 || id > MAX_REGS) return -1;
+    if(captured_idx[i] == 0) return -1;
+    printf("trying to read msg with id: %d\n", id);
     size_t len = regs[id]->len;
     char *text = calloc(len, sizeof(char));
     strcpy(text, regs[id]->buffer);
     free(regs[id]->buffer);
     free(regs[id]);
     enQueue(q, id);
-
+    captured_idx[id] = 0;
     /* Copy the requested part to the caller. */
     if ((ret = sys_safecopyto(endpt, grant, 0, (vir_bytes) text, len)) != OK){
         free(text);
@@ -200,6 +203,7 @@ static ssize_t clipboard_write(devminor_t UNUSED(minor), u64_t UNUSED(position),
                           cdev_id_t UNUSED(id))
 {
     int id = deQueue(q), ret;
+    printf("next id is: %d\n", id);
     char* buffer = calloc(size, sizeof(char));
     if ((ret = sys_safecopyto(endpt, grant, 0, (vir_bytes) buffer, size)) != OK) {
         free(buffer);
@@ -210,7 +214,7 @@ static ssize_t clipboard_write(devminor_t UNUSED(minor), u64_t UNUSED(position),
     regs[id]->buffer = calloc(size, sizeof(char));
     strcpy(regs[id]->buffer, buffer);
     free(buffer);
-    
+    captured_idx[id] = 1;
     /* Return the number of bytes read. */
     return id;
 }
