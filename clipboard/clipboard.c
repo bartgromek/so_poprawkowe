@@ -184,7 +184,7 @@ static ssize_t clipboard_read(devminor_t UNUSED(minor), u64_t UNUSED(position),
     size_t len = regs[id]->len;
     char *text = calloc(len, sizeof(char));
     strcpy(text, regs[id]->buffer);
-    printf("text: %d\n", text);
+    printf("text: %s\n", text);
     free(regs[id]->buffer);
     free(regs[id]);
     enQueue(q, id);
