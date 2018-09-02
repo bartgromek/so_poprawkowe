@@ -12,7 +12,7 @@ int main() {
 
     int size = (int)strlen(msg);
     int id = write(fd, msg, size);
-    size = read(fd, buf, size);
+    size = read(fd, buf, id);
     printf("size %d\n", size);
     buf[size] = '\0';
     printf("id: %d buf: %s\n", id, buf);
