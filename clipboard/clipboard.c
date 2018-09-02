@@ -176,13 +176,13 @@ static ssize_t clipboard_read(devminor_t UNUSED(minor), u64_t UNUSED(position),
     endpoint_t endpt, cp_grant_id_t grant, size_t size, int UNUSED(flags),
     cdev_id_t UNUSED(id))
 {
-    printf("read\n");
     int ret;
     int id = (int) size;
     printf("trying to read msg with id: %d\n", id);
     if(id < 0 || id > MAX_REGS) return -1;
     if(captured_idx[id] == 0) return -1;
     size_t len = regs[id]->len;
+    printf("len: %d\n", len);
     char *text = calloc(len, sizeof(char));
     strcpy(text, regs[id]->buffer);
     free(regs[id]->buffer);
@@ -213,6 +213,7 @@ static ssize_t clipboard_write(devminor_t UNUSED(minor), u64_t UNUSED(position),
     
     regs[id] = calloc(1, sizeof(reg));
     regs[id]->buffer = calloc(size, sizeof(char));
+    regs[id]->len = size;
     strcpy(regs[id]->buffer, buffer);
     free(buffer);
     captured_idx[id] = 1;
