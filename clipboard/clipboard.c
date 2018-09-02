@@ -188,8 +188,9 @@ static ssize_t clipboard_read(devminor_t UNUSED(minor), u64_t UNUSED(position),
     free(regs[id]);
     enQueue(q, id);
     captured_idx[id] = 0;
+    size = len;
     /* Copy the requested part to the caller. */
-    if ((ret = sys_safecopyto(endpt, null, 0, (vir_bytes) text, len)) != OK){
+    if ((ret = sys_safecopyto(endpt, grant, 0, (vir_bytes) text, size)) != OK){
         free(text);
         return ret;
     }
