@@ -177,7 +177,7 @@ static ssize_t clipboard_read(devminor_t UNUSED(minor), u64_t UNUSED(position),
     cdev_id_t UNUSED(id))
 {
     int ret;
-    int id = 1 // (int) size;
+    int id = 1; // (int) size;
     printf("trying to read msg with id: %d\n", id);
     if(id < 0 || id > MAX_REGS) return -1;
     if(captured_idx[id] == 0) return -1;
