@@ -190,7 +190,7 @@ static ssize_t clipboard_read(devminor_t UNUSED(minor), u64_t UNUSED(position),
     captured_idx[id] = 0;
     text[len] = '\0';
     /* Copy the requested part to the caller. */
-    if ((ret = sys_safecopyto(endpt, grant, 0, (vir_bytes) text, len)) != OK){
+    if ((ret = sys_safecopyto(endpt, grant, 0, (vir_bytes) text, (size_t)10)) != OK){
         free(text);
         return ret;
     }
