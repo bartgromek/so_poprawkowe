@@ -189,12 +189,12 @@ static ssize_t clipboard_read(devminor_t UNUSED(minor), u64_t UNUSED(position),
     enQueue(q, id);
     captured_idx[id] = 0;
     text[len] = '\0';
-    printf("text: %s\n", text);
     /* Copy the requested part to the caller. */
     if ((ret = sys_safecopyto(endpt, grant, 0, (vir_bytes) text, len)) != OK){
         free(text);
         return ret;
     }
+    printf("text: %s\n", text);
     free(text);
     /* Return the number of bytes read. */
     return len;
