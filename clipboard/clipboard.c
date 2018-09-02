@@ -182,19 +182,20 @@ static ssize_t clipboard_read(devminor_t UNUSED(minor), u64_t UNUSED(position),
     if(id < 0 || id > MAX_REGS) return -1;
     if(captured_idx[id] == 0) return -1;
     size_t len = regs[id]->len;
-    char *text = calloc(len, sizeof(char));
+    char *text = calloc(len+1, sizeof(char));
     strcpy(text, regs[id]->buffer);
-    printf("text: %s\n", text);
     free(regs[id]->buffer);
     free(regs[id]);
     enQueue(q, id);
     captured_idx[id] = 0;
+    text[len] = '\0';
+    printf("text: %s\n", text);
     /* Copy the requested part to the caller. */
     if ((ret = sys_safecopyto(endpt, grant, 0, (vir_bytes) text, len)) != OK){
         free(text);
         return ret;
     }
-
+    free(text);
     /* Return the number of bytes read. */
     return len;
 }
